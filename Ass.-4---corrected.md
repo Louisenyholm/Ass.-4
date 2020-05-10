@@ -212,11 +212,11 @@ summary(MA_m1)
     ## Group-Level Effects: 
     ## ~Paper (Number of levels: 19) 
     ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sd(Intercept)     0.34      0.10     0.16     0.56 1.01      593      540
+    ## sd(Intercept)     0.34      0.10     0.16     0.55 1.01      734      982
     ## 
     ## Population-Level Effects: 
     ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## Intercept    -0.46      0.10    -0.67    -0.26 1.00     1364     1300
+    ## Intercept    -0.46      0.10    -0.65    -0.25 1.00      814      903
     ## 
     ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
     ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -390,7 +390,7 @@ hypothesis(NS_m0, "DiagnosisTD < 0")
 
     ## Hypothesis Tests for class b:
     ##          Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
-    ## 1 (DiagnosisTD) < 0    -0.13      0.11    -0.32     0.06        7.4      0.88
+    ## 1 (DiagnosisTD) < 0    -0.13      0.11    -0.32     0.05       8.71       0.9
     ##   Star
     ## 1     
     ## ---
@@ -416,16 +416,16 @@ summary(NS_m0)
     ## Group-Level Effects: 
     ## ~ID (Number of levels: 149) 
     ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sd(Intercept)     0.73      0.05     0.65     0.82 1.00      569     1045
+    ## sd(Intercept)     0.73      0.05     0.65     0.82 1.00      524     1100
     ## 
     ## Population-Level Effects: 
     ##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## Intercept       0.29      0.09     0.12     0.45 1.00      357      619
-    ## DiagnosisTD    -0.13      0.11    -0.36     0.09 1.00      310      519
+    ## Intercept       0.29      0.08     0.12     0.46 1.00      487      692
+    ## DiagnosisTD    -0.13      0.11    -0.35     0.08 1.01      445      692
     ## 
     ## Family Specific Parameters: 
     ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sigma     0.70      0.02     0.67     0.74 1.00     2152     1280
+    ## sigma     0.70      0.02     0.67     0.74 1.00     2622     1382
     ## 
     ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
     ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -513,7 +513,7 @@ hypothesis(NS_informed_m0, "DiagnosisTD < 0")
 
     ## Hypothesis Tests for class b:
     ##          Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
-    ## 1 (DiagnosisTD) < 0    -0.26      0.11    -0.44    -0.08         99      0.99
+    ## 1 (DiagnosisTD) < 0    -0.26       0.1    -0.43    -0.09        199         1
     ##   Star
     ## 1    *
     ## ---
@@ -539,16 +539,16 @@ summary(NS_informed_m0)
     ## Group-Level Effects: 
     ## ~ID (Number of levels: 149) 
     ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sd(Intercept)     0.73      0.04     0.64     0.82 1.00      587     1074
+    ## sd(Intercept)     0.73      0.05     0.64     0.82 1.01      634     1296
     ## 
     ## Population-Level Effects: 
     ##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## Intercept       0.35      0.08     0.18     0.51 1.00      494      764
-    ## DiagnosisTD    -0.26      0.11    -0.48    -0.05 1.00      557      873
+    ## Intercept       0.35      0.08     0.19     0.51 1.00      513      798
+    ## DiagnosisTD    -0.26      0.10    -0.47    -0.06 1.01      543      959
     ## 
     ## Family Specific Parameters: 
     ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sigma     0.70      0.02     0.67     0.73 1.00     2826     1278
+    ## sigma     0.70      0.02     0.67     0.73 1.00     2371     1630
     ## 
     ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
     ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -568,31 +568,27 @@ of them is best.
 NS_informed_m0 <- add_criterion(NS_informed_m0, criterion = "loo", reloo = T)
 ```
 
-    ## 7 problematic observation(s) found.
-    ## The model will be refit 7 times.
+    ## 6 problematic observation(s) found.
+    ## The model will be refit 6 times.
 
     ## 
-    ## Fitting model 1 out of 7 (leaving out observation 125)
+    ## Fitting model 1 out of 6 (leaving out observation 125)
 
     ## 
-    ## Fitting model 2 out of 7 (leaving out observation 461)
+    ## Fitting model 2 out of 6 (leaving out observation 461)
 
     ## 
-    ## Fitting model 3 out of 7 (leaving out observation 501)
+    ## Fitting model 3 out of 6 (leaving out observation 639)
 
     ## 
-    ## Fitting model 4 out of 7 (leaving out observation 639)
+    ## Fitting model 4 out of 6 (leaving out observation 640)
 
     ## 
-    ## Fitting model 5 out of 7 (leaving out observation 640)
+    ## Fitting model 5 out of 6 (leaving out observation 770)
 
     ## 
-    ## Fitting model 6 out of 7 (leaving out observation 770)
+    ## Fitting model 6 out of 6 (leaving out observation 976)
 
-    ## 
-    ## Fitting model 7 out of 7 (leaving out observation 999)
-
-    ## Start sampling
     ## Start sampling
     ## Start sampling
     ## Start sampling
@@ -604,26 +600,18 @@ NS_informed_m0 <- add_criterion(NS_informed_m0, criterion = "loo", reloo = T)
 NS_m0 <- add_criterion(NS_m0, criterion = "loo", reloo = T)
 ```
 
-    ## 5 problematic observation(s) found.
-    ## The model will be refit 5 times.
+    ## 3 problematic observation(s) found.
+    ## The model will be refit 3 times.
 
     ## 
-    ## Fitting model 1 out of 5 (leaving out observation 125)
+    ## Fitting model 1 out of 3 (leaving out observation 244)
 
     ## 
-    ## Fitting model 2 out of 5 (leaving out observation 501)
+    ## Fitting model 2 out of 3 (leaving out observation 639)
 
     ## 
-    ## Fitting model 3 out of 5 (leaving out observation 639)
+    ## Fitting model 3 out of 3 (leaving out observation 640)
 
-    ## 
-    ## Fitting model 4 out of 5 (leaving out observation 640)
-
-    ## 
-    ## Fitting model 5 out of 5 (leaving out observation 976)
-
-    ## Start sampling
-    ## Start sampling
     ## Start sampling
     ## Start sampling
     ## Start sampling
@@ -636,7 +624,7 @@ loo_compare(NS_m0,
 
     ##                elpd_diff se_diff
     ## NS_m0           0.0       0.0   
-    ## NS_informed_m0 -2.0       1.1
+    ## NS_informed_m0 -0.3       0.8
 
 ``` r
 # Comparing the models
@@ -650,8 +638,8 @@ loo_model_weights(NS_m0, NS_informed_m0)
     ## Method: stacking
     ## ------
     ##                weight
-    ## NS_m0          1.000 
-    ## NS_informed_m0 0.000
+    ## NS_m0          0.000 
+    ## NS_informed_m0 1.000
 
 ``` r
 # Plotting and comparing the posteriors
