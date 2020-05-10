@@ -1,0 +1,307 @@
+---
+title: "Assignment 4 - Applying meta-analytic priors"
+author: "Oliver, Malte, Anna & Louise"
+output:
+  md_document:
+    variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment 4
+
+In this assignment we do the following:
+- we run a Bayesian meta-analysis of pitch variability in ASD, based on previously published literature
+- we analyze pitch variability in ASD in two new studies using both a conservative and a meta-analytic prior
+- we assess the difference in model quality and estimates using the two priors.
+
+The questions you need to answer are: What are the consequences of using a meta-analytic prior? Evaluate the models with conservative and meta-analytic priors. Discuss the effects on estimates. Discuss the effects on model quality. Discuss the role that meta-analytic priors should have in scientific practice. Should we systematically use them? Do they have drawbacks? Should we use them to complement more conservative approaches? How does the use of meta-analytic priors you suggest reflect the skeptical and cumulative nature of science?
+
+### Step by step suggestions
+
+Step 1: Perform a meta-analysis of pitch variability from previous studies of voice in ASD
+- the data is available as Ass4_MetaAnalysisData.tsv
+- You should calculate Effect size (cohen's d) and Standard Error (uncertainty in the Cohen's d) per each study, using escalc() from the metafor package (also check the livecoding intro)
+- N.B. we're only interested in getting a meta-analytic effect size for the meta-analytic prior (and not e.g. all the stuff on publication bias). See a brms tutorial here: https://vuorre.netlify.com/post/2016/09/29/meta-analysis-is-a-special-case-of-bayesian-multilevel-modeling/ The formula is EffectSize | se(StandardError) ~ 1 + (1 | Paper). Don't forget prior definition, model checking, etc.
+- Write down the results of the meta-analysis in terms of a prior for step 2.
+
+```{r}
+# Loading packages
+pacman::p_load(
+  tidyverse, 
+  metafor,
+  brms) 
+
+# Loading data
+MA_d <- read_delim("Ass4_MetaAnalysisData.tsv", delim = "\t")
+
+# Tidying data (making sure the relevant variables are categorised correctly)
+MA_d <- MA_d %>%
+  mutate(
+    PitchVariabilityASD_Mean = as.numeric(PitchVariabilityASD_Mean),
+    PitchVariabilityTD_Mean = as.numeric(PitchVariabilityTD_Mean),
+    PitchVariabilityASD_SD = as.numeric(PitchVariabilityASD_SD),
+    PitchVariabilityTD_SD = as.numeric(PitchVariabilityTD_SD)
+  )
+
+# Only keeping the studies with a name (the NA rows have no data all)
+MA_d <- MA_d %>%
+  subset(!is.na(Paper))
+
+# Using escalc() to calculate Effect size (cohen's d) and Standard Error (uncertainty in the Cohen's d) per each study
+MA_d <- escalc(measure = "SMD", # Standardized mean difference
+            n1i = TD_N, # Specifying group size of TD
+            n2i = ASD_N, # Specifying group size of ASD
+            m1i = PitchVariabilityTD_Mean, # Specifying mean of TD
+            m2i = PitchVariabilityASD_Mean, # Specifying mean of ASD
+            sd1i = PitchVariabilityTD_SD, # Specifying  SD of TD
+            sd2i = PitchVariabilityASD_SD, # Specifying SD of ASD
+            data = MA_d, # DATA
+            slab = Paper) # (Optional) - labels for the studies
+
+# Renaming yi (effect size) and calculting SE from vi (variance)
+MA_d <- MA_d %>% 
+  mutate(
+    StandardError = sqrt(vi)
+    ) %>%
+  rename(
+  EffectSize = yi
+  )
+
+# Looking at summary of the effect sizes and the standard errors
+summary(MA_d$EffectSize) # Mean = -0.46
+summary(MA_d$StandardError) # Mean = 0.37
+
+# Specifying a formula
+MA_f <- bf(EffectSize | se(StandardError) ~ 1 + (1 | Paper))
+# Predicting from the mean including variability per paper
+
+# Defining priors
+get_prior(MA_f, data = MA_d, family = gaussian())
+
+MA_prior <- c(
+  prior(normal(0, 1), class = Intercept), # mean of effect size = 0, because we are sceptical, meaning that we expect no effect, unless the data proves us wrong
+  prior(normal(0, .3), class = sd) # Based on summary of sd (min, max) and equal chance of variation to both sides
+)
+
+# Prior predictive check
+MA_m0 <- brm(
+  MA_f,
+  data = MA_d,
+  family = gaussian(),
+  prior = MA_prior,
+  sample_prior = "only",
+  chains = 2,
+  cores = 2 #,
+  #file = "MA_m0"
+)
+
+pp_check(MA_m0, nsamples = 100)
+
+# Fitting the model
+MA_m1 <- brm(
+  MA_f,
+  data = MA_d,
+  family = gaussian(),
+  prior = MA_prior,
+  sample_prior = T,
+  chains = 2,
+  cores = 2 #,
+  # file = "MA_m1"
+)
+
+# Posterior predictive check
+pp_check(MA_m1, nsamples = 100)
+
+# Looking at the estimates
+summary(MA_m1)
+# RESULTS: MA effect mean = -0.44, SD = 0.09
+# = On average an effect size of -0.43 in pitch variability (thus bigger variability in ASDs compared to TDs)
+
+# Saving the results in variables to use later
+MA_mean <- fixef(MA_m1)[[1]] # Defining the effect size of intercept as the mean
+MA_se <- fixef(MA_m1)[[2]] # Defining the SD as mean_se (WHY SE?)
+
+MA_heterogeneity = 0.32 # Defining the sigma (group-level effects) as heterogeneity
+
+```
+
+
+
+Step 2: Analyse pitch variability in ASD in two new studies for which you have access to all the trials (not just study level estimates)
+- the data is available as Ass4_data.csv. Notice there are 2 studies (language us, and language dk), multiple trials per participant, and a few different ways to measure pitch variability (if in doubt, focus on pitch IQR, interquartile range of the log of fundamental frequency)
+- Also, let's standardize the data, so that they are compatible with our meta-analytic prior (Cohen's d is measured in SDs).
+- Is there any structure in the dataset that we should account for with random/varying effects? How would you implement that? Or, if you don't know how to do bayesian random/varying effects or don't want to bother, is there anything we would need to simplify in the dataset?
+
+```{r}
+# Loading data
+d <- read_csv("Ass4_data.csv", col_types = cols(ID = col_character()))
+
+# Standardising pitch variability (Pitch IQR) in order to put it on the same scale as the MA priors, just defined above (the results of the summary)
+d <- d %>% mutate(
+  PitchVariability = scale(Pitch_IQR) # Mean centred and sd-scaled
+)
+
+# Looking at the difference before and after scaling - and how the outcome is distributed
+hist(d$Pitch_IQR)
+hist(d$PitchVariability)
+
+# Which structure?
+## Language - Fixed effect
+## Diagnosis - Fixed effect
+## ID - Varying effect
+
+```
+
+
+
+Step 3: Build a regression model predicting Pitch variability from Diagnosis.
+- how is the outcome distributed? (likelihood function). NB. given we are standardizing, and the meta-analysis is on that scale, gaussian is not a bad assumption. Lognormal would require us to convert the prior to that scale.
+- how are the parameters of the likelihood distribution distributed? Which predictors should they be conditioned on? Start simple, with Diagnosis only. Add other predictors only if you have the time and energy!
+- use a skeptical/conservative prior for the effects of diagnosis. Remember you'll need to motivate it.
+- Evaluate model quality. Describe and plot the estimates. 
+
+```{r}
+# Looking at the difference before and after scaling - and how the outcome is distributed
+hist(d$Pitch_IQR)
+hist(d$PitchVariability) # Looks like a lognormal, but we assume it is gaussian
+
+# Defining formulas
+NewStudies_f0 <- bf(PitchVariability ~ 1 + Diagnosis + (1|ID))
+# Using 1, because we want the change (the effect size)
+
+# Defining sceptical priors
+get_prior(NewStudies_f0, d, family = gaussian())
+
+NS_prior0 <- c(
+  prior(normal(0, .3), class = Intercept), # Defining that ASD mean of pitch variability is 0 (being sceptical)
+  prior(normal(0, .2), class = b), # Defining a slope/Difference in pitch variability going from ASD to TD (we are sceptical --> assuming no difference) Because data is scaled, it is in sds, we expect small effects, because it is a psychological study.
+  prior(normal(0, .2), class = sd), # Variation between participants - assuming that participants are as different between participants as when going from ASD to TD.
+  prior(normal(.5, .3), class = sigma) # Variation in the whole model - sd(d$pitchvariability) - we do not expect the model to be perfect, 0.3 in order to go to 1 and above.
+)
+
+# Prior predictive check
+NS_m0_pc <- brm(
+  NewStudies_f0,
+  d,
+  family = gaussian(),
+  prior = NS_prior0,
+  sample_prior = "only",
+  chains = 2,
+  cores = 2
+)
+
+pp_check(NS_m0_pc, nsamples=100)
+
+# Fitting the model
+NS_m0 <- brm(
+  NewStudies_f0,
+  d,
+  family = gaussian(),
+  prior = NS_prior0,
+  sample_prior = T,
+  chains = 2,
+  cores = 2
+)
+
+# Posterior Predictive Check
+pp_check(NS_m0, nsamples=100)
+
+# Hypothesis testing
+plot(hypothesis(NS_m0, "DiagnosisTD < 0")) # Hypothesising that going from ASD to TD has a smaller effect than zero (based on MA)
+# Showing that the hypothesis is supported, since the density is highest around -0.1 (thus smaller than 0). However, it crosses 0, and is not completely credible (but with most mass on the negative side of 0)
+hypothesis(NS_m0, "DiagnosisTD < 0")
+# Estimate -0.14 - as illustrated in the plot (and most of the CIs are negative), ER = 8.95.
+
+# More estimates
+summary(NS_m0)
+# So, mean of ASD variability measured in cohen's d = 0.29 (SDs), and 0.15 for TDs (thus more variability in ASDs compared to TDs). RHat of 1, ESS of bigger than 450.
+```
+
+
+Step 4: Now re-run the model with the meta-analytic prior
+- Evaluate model quality. Describe and plot the estimates. 
+
+```{r}
+# Defining informed priors
+NS_informed_prior0 <- c(
+  prior(normal(0, 0.3), class = Intercept), # Defining that ASD mean of pitch variability is 0 (being sceptical)
+  prior(normal(-0.44, 0.2), class = b), # Defining a slope/Difference in pitch variability going from ASD to TD (we are relying on our MA results)
+  prior(normal(0, 0.2), class = sd), # Variation between participants - assuming that participants are as different between participants as when going from ASD to TD.
+  prior(normal(0.32, .3), class = sigma) # Variation in the whole model(relying on information from MA), but we do not expect the model to be perfect
+)
+
+# Prior predictive check
+NS_informed_m0_pc <- brm(
+  NewStudies_f0,
+  d,
+  family = gaussian(),
+  prior = NS_informed_prior0,
+  sample_prior = "only",
+  chains = 2,
+  cores = 2
+)
+
+pp_check(NS_informed_m0_pc, nsamples = 100)
+
+# Fitting the model
+NS_informed_m0 <- brm(
+  NewStudies_f0,
+  d,
+  family = gaussian(),
+  prior = NS_informed_prior0,
+  sample_prior = T,
+  chains = 2,
+  cores = 2
+)
+
+# Posterior predictive check
+pp_check(NS_informed_m0, nsamples = 100)
+
+# Hypothesis testing
+plot(hypothesis(NS_informed_m0, "DiagnosisTD < 0"))
+# Showing a negative tendency! Highest density around -0.3.
+hypothesis(NS_informed_m0, "DiagnosisTD < 0")
+# -0.27 in effect size, CIs not crossing zero - clearly negative, evidence ratio of 249.
+
+# More estimates
+summary(NS_informed_m0)
+# Showing that pitch variability for ASDs is 0.35, while for TDs it is 0.08. Rhat of 1, ESS of 440 and above (of 2000 iterations).
+```
+
+
+Step 5: Compare the models
+- Plot priors and posteriors of the diagnosis effect in both models
+- Compare posteriors between the two models
+- Compare the two models (LOO)
+- Discuss how they compare and whether any of them is best.
+
+```{r}
+# Adding criteria to the models in order to compare
+NS_informed_m0 <- add_criterion(NS_informed_m0, criterion = "loo", reloo = T)
+NS_m0 <- add_criterion(NS_m0, criterion = "loo", reloo = T)
+
+# Comparing the models
+loo_compare(NS_m0,
+            NS_informed_m0)
+
+# Comparing the models
+loo_model_weights(NS_m0, NS_informed_m0)
+
+# Plotting and comparing the posteriors
+plot(hypothesis(NS_m0, "DiagnosisTD < 0"))
+plot(hypothesis(NS_informed_m0, "DiagnosisTD < 0"))
+
+```
+
+
+Step 6: Prepare a nice write up of the analysis and answer the questions at the top.
+
+Optional step 7: how skeptical should a prior be?
+- Try different levels of skepticism and compare them using LOO.
+
+Optional step 8: Include other predictors
+- Do age, gender and education improve the model?
+- Should they be main effects or interactions?
