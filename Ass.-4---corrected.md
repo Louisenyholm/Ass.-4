@@ -149,8 +149,7 @@ MA_m0 <- brm(
   prior = MA_prior,
   sample_prior = "only",
   chains = 2,
-  cores = 2 #,
-  #file = "MA_m0"
+  cores = 3
 )
 ```
 
@@ -175,8 +174,7 @@ MA_m1 <- brm(
   prior = MA_prior,
   sample_prior = T,
   chains = 2,
-  cores = 2 #,
-  # file = "MA_m1"
+  cores = 3
 )
 ```
 
@@ -193,6 +191,13 @@ pp_check(MA_m1, nsamples = 100)
 ![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-1-2.png)
 
 ``` r
+# Chain checking
+plot(MA_m1)
+```
+
+![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-1-3.png)
+
+``` r
 # Looking at the estimates
 summary(MA_m1)
 ```
@@ -207,11 +212,11 @@ summary(MA_m1)
     ## Group-Level Effects: 
     ## ~Paper (Number of levels: 19) 
     ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sd(Intercept)     0.35      0.09     0.17     0.56 1.00      769     1042
+    ## sd(Intercept)     0.34      0.10     0.16     0.56 1.01      593      540
     ## 
     ## Population-Level Effects: 
     ##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## Intercept    -0.45      0.11    -0.65    -0.24 1.00     1044      891
+    ## Intercept    -0.46      0.10    -0.67    -0.26 1.00     1364     1300
     ## 
     ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
     ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -327,7 +332,7 @@ NS_m0_pc <- brm(
   prior = NS_prior0,
   sample_prior = "only",
   chains = 2,
-  cores = 2
+  cores = 3
 )
 ```
 
@@ -350,7 +355,7 @@ NS_m0 <- brm(
   prior = NS_prior0,
   sample_prior = T,
   chains = 2,
-  cores = 2
+  cores = 3
 )
 ```
 
@@ -365,11 +370,18 @@ pp_check(NS_m0, nsamples=100)
 ![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-3-4.png)
 
 ``` r
+# Chain checking
+plot(NS_m0)
+```
+
+![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-3-5.png)
+
+``` r
 # Hypothesis testing
 plot(hypothesis(NS_m0, "DiagnosisTD < 0")) # Hypothesising that going from ASD to TD has a smaller effect than zero (based on MA)
 ```
 
-![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-3-5.png)
+![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-3-6.png)
 
 ``` r
 # Showing that the hypothesis is supported, since the density is highest around -0.1 (thus smaller than 0). However, it crosses 0, and is not completely credible (but with most mass on the negative side of 0)
@@ -378,7 +390,7 @@ hypothesis(NS_m0, "DiagnosisTD < 0")
 
     ## Hypothesis Tests for class b:
     ##          Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
-    ## 1 (DiagnosisTD) < 0    -0.14      0.11    -0.31     0.05       8.66       0.9
+    ## 1 (DiagnosisTD) < 0    -0.13      0.11    -0.32     0.06        7.4      0.88
     ##   Star
     ## 1     
     ## ---
@@ -404,16 +416,16 @@ summary(NS_m0)
     ## Group-Level Effects: 
     ## ~ID (Number of levels: 149) 
     ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sd(Intercept)     0.73      0.05     0.64     0.82 1.00      485      962
+    ## sd(Intercept)     0.73      0.05     0.65     0.82 1.00      569     1045
     ## 
     ## Population-Level Effects: 
     ##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## Intercept       0.29      0.08     0.12     0.44 1.01      375      648
-    ## DiagnosisTD    -0.14      0.11    -0.34     0.10 1.01      498      709
+    ## Intercept       0.29      0.09     0.12     0.45 1.00      357      619
+    ## DiagnosisTD    -0.13      0.11    -0.36     0.09 1.00      310      519
     ## 
     ## Family Specific Parameters: 
     ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sigma     0.70      0.02     0.67     0.73 1.00     2953     1337
+    ## sigma     0.70      0.02     0.67     0.74 1.00     2152     1280
     ## 
     ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
     ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -443,7 +455,7 @@ NS_informed_m0_pc <- brm(
   prior = NS_informed_prior0,
   sample_prior = "only",
   chains = 2,
-  cores = 2
+  cores = 3
 )
 ```
 
@@ -466,7 +478,7 @@ NS_informed_m0 <- brm(
   prior = NS_informed_prior0,
   sample_prior = T,
   chains = 2,
-  cores = 2
+  cores = 3
 )
 ```
 
@@ -481,11 +493,18 @@ pp_check(NS_informed_m0, nsamples = 100)
 ![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-4-2.png)
 
 ``` r
+# Chain checking
+plot(NS_informed_m0)
+```
+
+![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-4-3.png)
+
+``` r
 # Hypothesis testing
 plot(hypothesis(NS_informed_m0, "DiagnosisTD < 0"))
 ```
 
-![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-4-3.png)
+![](Ass.-4---corrected_files/figure-markdown_github/unnamed-chunk-4-4.png)
 
 ``` r
 # Showing a negative tendency! Highest density around -0.3.
@@ -494,7 +513,7 @@ hypothesis(NS_informed_m0, "DiagnosisTD < 0")
 
     ## Hypothesis Tests for class b:
     ##          Hypothesis Estimate Est.Error CI.Lower CI.Upper Evid.Ratio Post.Prob
-    ## 1 (DiagnosisTD) < 0    -0.26      0.11    -0.44    -0.09     332.33         1
+    ## 1 (DiagnosisTD) < 0    -0.26      0.11    -0.44    -0.08         99      0.99
     ##   Star
     ## 1    *
     ## ---
@@ -520,16 +539,16 @@ summary(NS_informed_m0)
     ## Group-Level Effects: 
     ## ~ID (Number of levels: 149) 
     ##               Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sd(Intercept)     0.73      0.05     0.65     0.83 1.00      452      708
+    ## sd(Intercept)     0.73      0.04     0.64     0.82 1.00      587     1074
     ## 
     ## Population-Level Effects: 
     ##             Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## Intercept       0.35      0.08     0.18     0.50 1.00      462      830
-    ## DiagnosisTD    -0.26      0.11    -0.47    -0.06 1.00      423      859
+    ## Intercept       0.35      0.08     0.18     0.51 1.00      494      764
+    ## DiagnosisTD    -0.26      0.11    -0.48    -0.05 1.00      557      873
     ## 
     ## Family Specific Parameters: 
     ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-    ## sigma     0.70      0.02     0.67     0.73 1.00     2461     1275
+    ## sigma     0.70      0.02     0.67     0.73 1.00     2826     1278
     ## 
     ## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
     ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -549,27 +568,31 @@ of them is best.
 NS_informed_m0 <- add_criterion(NS_informed_m0, criterion = "loo", reloo = T)
 ```
 
-    ## 6 problematic observation(s) found.
-    ## The model will be refit 6 times.
+    ## 7 problematic observation(s) found.
+    ## The model will be refit 7 times.
 
     ## 
-    ## Fitting model 1 out of 6 (leaving out observation 244)
+    ## Fitting model 1 out of 7 (leaving out observation 125)
 
     ## 
-    ## Fitting model 2 out of 6 (leaving out observation 322)
+    ## Fitting model 2 out of 7 (leaving out observation 461)
 
     ## 
-    ## Fitting model 3 out of 6 (leaving out observation 327)
+    ## Fitting model 3 out of 7 (leaving out observation 501)
 
     ## 
-    ## Fitting model 4 out of 6 (leaving out observation 639)
+    ## Fitting model 4 out of 7 (leaving out observation 639)
 
     ## 
-    ## Fitting model 5 out of 6 (leaving out observation 640)
+    ## Fitting model 5 out of 7 (leaving out observation 640)
 
     ## 
-    ## Fitting model 6 out of 6 (leaving out observation 976)
+    ## Fitting model 6 out of 7 (leaving out observation 770)
 
+    ## 
+    ## Fitting model 7 out of 7 (leaving out observation 999)
+
+    ## Start sampling
     ## Start sampling
     ## Start sampling
     ## Start sampling
@@ -588,16 +611,16 @@ NS_m0 <- add_criterion(NS_m0, criterion = "loo", reloo = T)
     ## Fitting model 1 out of 5 (leaving out observation 125)
 
     ## 
-    ## Fitting model 2 out of 5 (leaving out observation 244)
+    ## Fitting model 2 out of 5 (leaving out observation 501)
 
     ## 
-    ## Fitting model 3 out of 5 (leaving out observation 501)
+    ## Fitting model 3 out of 5 (leaving out observation 639)
 
     ## 
-    ## Fitting model 4 out of 5 (leaving out observation 639)
+    ## Fitting model 4 out of 5 (leaving out observation 640)
 
     ## 
-    ## Fitting model 5 out of 5 (leaving out observation 640)
+    ## Fitting model 5 out of 5 (leaving out observation 976)
 
     ## Start sampling
     ## Start sampling
@@ -612,8 +635,8 @@ loo_compare(NS_m0,
 ```
 
     ##                elpd_diff se_diff
-    ## NS_informed_m0 0.0       0.0    
-    ## NS_m0          0.0       1.0
+    ## NS_m0           0.0       0.0   
+    ## NS_informed_m0 -2.0       1.1
 
 ``` r
 # Comparing the models
@@ -627,8 +650,8 @@ loo_model_weights(NS_m0, NS_informed_m0)
     ## Method: stacking
     ## ------
     ##                weight
-    ## NS_m0          0.644 
-    ## NS_informed_m0 0.356
+    ## NS_m0          1.000 
+    ## NS_informed_m0 0.000
 
 ``` r
 # Plotting and comparing the posteriors

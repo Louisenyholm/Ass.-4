@@ -94,8 +94,7 @@ MA_m0 <- brm(
   prior = MA_prior,
   sample_prior = "only",
   chains = 2,
-  cores = 2 #,
-  #file = "MA_m0"
+  cores = 3
 )
 
 pp_check(MA_m0, nsamples = 100)
@@ -108,12 +107,14 @@ MA_m1 <- brm(
   prior = MA_prior,
   sample_prior = T,
   chains = 2,
-  cores = 2 #,
-  # file = "MA_m1"
+  cores = 3
 )
 
 # Posterior predictive check
 pp_check(MA_m1, nsamples = 100)
+
+# Chain checking
+plot(MA_m1)
 
 # Looking at the estimates
 summary(MA_m1)
@@ -190,7 +191,7 @@ NS_m0_pc <- brm(
   prior = NS_prior0,
   sample_prior = "only",
   chains = 2,
-  cores = 2
+  cores = 3
 )
 
 pp_check(NS_m0_pc, nsamples=100)
@@ -203,11 +204,14 @@ NS_m0 <- brm(
   prior = NS_prior0,
   sample_prior = T,
   chains = 2,
-  cores = 2
+  cores = 3
 )
 
 # Posterior Predictive Check
 pp_check(NS_m0, nsamples=100)
+
+# Chain checking
+plot(NS_m0)
 
 # Hypothesis testing
 plot(hypothesis(NS_m0, "DiagnosisTD < 0")) # Hypothesising that going from ASD to TD has a smaller effect than zero (based on MA)
@@ -241,7 +245,7 @@ NS_informed_m0_pc <- brm(
   prior = NS_informed_prior0,
   sample_prior = "only",
   chains = 2,
-  cores = 2
+  cores = 3
 )
 
 pp_check(NS_informed_m0_pc, nsamples = 100)
@@ -254,11 +258,14 @@ NS_informed_m0 <- brm(
   prior = NS_informed_prior0,
   sample_prior = T,
   chains = 2,
-  cores = 2
+  cores = 3
 )
 
 # Posterior predictive check
 pp_check(NS_informed_m0, nsamples = 100)
+
+# Chain checking
+plot(NS_informed_m0)
 
 # Hypothesis testing
 plot(hypothesis(NS_informed_m0, "DiagnosisTD < 0"))
